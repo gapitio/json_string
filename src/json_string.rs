@@ -133,6 +133,9 @@ pub(crate) fn quote_distinguisher_from_str(trimmed_braces: &str) -> IndexMap<Str
         }
     }
 
+    quote_distinguisher.insert(string_under_construction.clone(), KeyOrValue::Value);
+    string_under_construction.clear();
+
     quote_distinguisher
 }
 
@@ -274,12 +277,9 @@ pub(crate) fn raw_json_multiple_devices(original_str: &str) -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
-    use serial_test::serial;
-
     use crate::prepare_json_string;
 
     #[test]
-    #[serial]
     fn prepare_json_string_w_empty_groups() {
         let original_str = r#"
             [
@@ -294,7 +294,6 @@ mod tests {
     }
 
     #[test]
-    #[serial]
     fn prepare_json_string_w_inner_json() {
         let original_str = r#"
             [
@@ -304,6 +303,20 @@ mod tests {
         let prepared_str = prepare_json_string(original_str);
 
         let expected_str = r#"[{"label": "lol", "customtags": {"k1": "v1"}}]"#;
+
+        assert_eq!(prepared_str, expected_str);
+    }
+
+    #[test]
+    fn entirely_without_quotes() {
+        let original_str = "{
+            property1: lol,
+            property2: iskrem
+        }";
+
+        let prepared_str = prepare_json_string(original_str);
+
+        let expected_str = "[{\"property1\": \"lol\", \"property2\": \"iskrem\"}]";
 
         assert_eq!(prepared_str, expected_str);
     }
