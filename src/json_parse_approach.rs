@@ -19,7 +19,7 @@ pub(crate) fn parse_json_string(string: &str, json_context: JsonContext) -> Stri
             content_string.pop();
             let content_string = content_string.trim_matches([' ', '\n', '\t', ',']);
 
-            let object_context = json_context_of_str(string);
+            let object_context = JsonContext::Object;
 
             let new_object_substance = parse_json_string(content_string, object_context);
 
@@ -44,15 +44,24 @@ pub(crate) fn parse_json_string(string: &str, json_context: JsonContext) -> Stri
             array_elements
         }
         string if string.starts_with('[') && string.ends_with(']') => {
-            let mut intermediate_string = string[1..].to_string();
-            intermediate_string.pop();
-            let intermediate_string = intermediate_string.trim();
+            let mut content_str = string[1..].to_string();
+            content_str.pop();
+            let content_str = content_str.trim();
 
-            let array_context = JsonContext::Array;
+            let mut array_str = split_array_elements(content_str)
+                .iter()
+                .map(|element| {
+                    let value_context = JsonContext::Value;
 
-            let new_string = parse_json_string(intermediate_string, array_context);
+                    let new_element = parse_json_string(element, value_context);
+                    let formatted_element = format!("{new_element}, ");
+                    formatted_element
+                })
+                .collect::<String>();
+            array_str.pop();
+            array_str.pop();
 
-            let add_the_brackets_back = format!("[{new_string}]");
+            let add_the_brackets_back = format!("[{array_str}]");
 
             add_the_brackets_back
         }
@@ -169,47 +178,39 @@ pub(crate) fn split_array_elements(string: &str) -> Vec<String> {
     let mut object_lefts = 0;
 
     for ch in string.chars() {
-        if ch == ',' && !array_lefts.is_zero() && !object_lefts.is_zero() {
-            all_elements.push(current_element.clone());
+        if ch == ',' && array_lefts.is_zero() && object_lefts.is_zero() {
+            let trimmed_current_element = current_element
+                .trim_matches([' ', '\n', '\t', ',', ';'])
+                .to_string();
+            all_elements.push(trimmed_current_element.clone());
             current_element.clear();
         }
 
-        if ch == '{' && !array_lefts.is_zero() && !object_lefts.is_zero() {
+        if ch == '{' && array_lefts.is_zero() {
             object_lefts += 1;
         }
 
-        if ch == '[' && !array_lefts.is_zero() && !object_lefts.is_zero() {
+        if ch == '[' && object_lefts.is_zero() {
             array_lefts += 1;
         }
 
-        if ch == ']' && array_lefts.is_zero() {
+        if ch == ']' && !array_lefts.is_zero() {
             array_lefts -= 1;
         }
 
-        if ch == '}' && object_lefts.is_zero() {
+        if ch == '}' && !object_lefts.is_zero() {
             object_lefts -= 1;
         }
         current_element.push(ch);
     }
 
-    all_elements.push(current_element.clone());
+    let trimmed_current_element = current_element
+        .trim_matches([' ', '\n', '\t', ',', ';'])
+        .to_string();
+    all_elements.push(trimmed_current_element.clone());
     current_element.clear();
 
     all_elements
-}
-
-pub(crate) fn json_context_of_str(string: &str) -> JsonContext {
-    let json_context = match string {
-        original_str if original_str.starts_with('[') && original_str.ends_with(']') => {
-            JsonContext::Array
-        }
-        original_str if original_str.starts_with('{') && original_str.ends_with('}') => {
-            JsonContext::Object
-        }
-        _ => JsonContext::Value,
-    };
-
-    json_context
 }
 
 #[cfg(test)]
