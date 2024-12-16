@@ -1,6 +1,6 @@
 [package]
 name = "json_string"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 description = "Format JSON string so that `serde_json` can understand it."
 keywords = ["serde", "string", "json"]
@@ -13,10 +13,10 @@ rust-version = "1.82.0"
 
 [dependencies]
 anyhow = "1.0.94"
-indexmap = { version = "2.6.0", features = ["serde"] }
+indexmap = { version = "2.7.0", features = ["serde"] }
 itertools = "0.13.0"
 num = "0.4.3"
-serde_json = "1.0.132"
+serde_json = "1.0.133"
 serial_test = "3.2.0"
 
 [lints.clippy]
