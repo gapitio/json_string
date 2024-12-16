@@ -1,7 +1,6 @@
 use crate::json_parse_approach::{parse_stringified_json_string, JsonContext};
 
 pub fn prepare_stringified_json_string(original_str: &str) -> String {
-    dbg!(&original_str);
     let trimmed_str = original_str.trim_matches([' ', '\n', '\t', ',', ';', ':']);
     let json_context = json_context(trimmed_str);
     let content_str = content_str(json_context.clone(), trimmed_str);

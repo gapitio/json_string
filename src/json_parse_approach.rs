@@ -16,27 +16,26 @@ pub(crate) fn parse_stringified_json_string(string: &str, json_context: JsonCont
                 && json_context == JsonContext::Value =>
         {
             let handled_object_w_wrapper = handle_stringified_object_w_wrapper(string);
-            dbg!(&handled_object_w_wrapper);
+
             handled_object_w_wrapper
         }
         string if json_context == JsonContext::Array => {
             let handled_array_content = handle_stringified_array_content(string);
-            dbg!(&handled_array_content);
+
             handled_array_content
         }
         string if string.starts_with('[') && string.ends_with(']') => {
             let handled_array_w_wrapper = handle_stringified_array_w_wrapper(string);
-            dbg!(&handled_array_w_wrapper);
+
             handled_array_w_wrapper
         }
         string if json_context == JsonContext::Object => {
             let handled_object_content = handle_stringified_object_content(string);
-            dbg!(&handled_object_content);
+
             handled_object_content
         }
         _ => {
             let formatted_value = format_stringified_value(string);
-            dbg!(&formatted_value);
 
             formatted_value
         }
@@ -111,7 +110,6 @@ pub(crate) fn handle_stringified_array_content(string: &str) -> String {
         .map(|element| {
             let value_context = JsonContext::Value;
 
-            dbg!(&element);
             let new_element = parse_stringified_json_string(element, value_context);
             let formatted_element = format!("{new_element}, ");
             formatted_element
@@ -129,7 +127,6 @@ pub(crate) fn handle_array_content(string: &str) -> String {
         .map(|element| {
             let value_context = JsonContext::Value;
 
-            dbg!(&element);
             let new_element = parse_json_string(element, value_context);
             let formatted_element = format!("{new_element}, ");
             formatted_element
@@ -254,7 +251,6 @@ pub(crate) fn format_stringified_value(value_str: &str) -> String {
         return String::default();
     }
 
-    dbg!(&value_str);
     let without_quotes = value_str.trim_matches('\"');
     let formatted_value = format!("\"{without_quotes}\"");
 
