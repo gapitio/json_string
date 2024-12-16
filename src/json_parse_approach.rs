@@ -15,94 +15,113 @@ pub(crate) fn parse_json_string(string: &str, json_context: JsonContext) -> Stri
                 && string.ends_with('}')
                 && json_context == JsonContext::Value =>
         {
-            let mut content_string = string[1..].to_string();
-            content_string.pop();
-            let content_string = content_string.trim_matches([' ', '\n', '\t', ',']);
-
-            let object_context = JsonContext::Object;
-
-            let new_object_substance = parse_json_string(content_string, object_context);
-
-            let new_with_braces = format!("{{{new_object_substance}}}");
-
-            new_with_braces
+            let handled_object_w_wrapper = handle_object_w_wrapper(string);
+            handled_object_w_wrapper
         }
         string if json_context == JsonContext::Array => {
-            let mut array_elements = split_array_elements(string)
-                .iter()
-                .map(|element| {
-                    let value_context = JsonContext::Value;
-
-                    let new_element = parse_json_string(element, value_context);
-                    let formatted_element = format!("{new_element}, ");
-                    formatted_element
-                })
-                .collect::<String>();
-            array_elements.pop();
-            array_elements.pop();
-
-            array_elements
+            let handled_array_content = handle_array_content(string);
+            handled_array_content
         }
         string if string.starts_with('[') && string.ends_with(']') => {
-            let mut content_str = string[1..].to_string();
-            content_str.pop();
-            let content_str = content_str.trim();
-
-            let mut array_str = split_array_elements(content_str)
-                .iter()
-                .map(|element| {
-                    let value_context = JsonContext::Value;
-
-                    let new_element = parse_json_string(element, value_context);
-                    let formatted_element = format!("{new_element}, ");
-                    formatted_element
-                })
-                .collect::<String>();
-            array_str.pop();
-            array_str.pop();
-
-            let add_the_brackets_back = format!("[{array_str}]");
-
-            add_the_brackets_back
+            let handled_array_w_wrapper = handle_array_w_wrapper(string);
+            handled_array_w_wrapper
         }
         string if json_context == JsonContext::Object => {
-            let mut key_value_pairs = split_object_elements(string)
-                .iter()
-                .filter_map(|kv_pair| {
-                    let (key, value) = kv_pair.split_once(':')?;
-
-                    let trimmed_key = key.trim();
-
-                    let new_key = if trimmed_key.starts_with('\"') && trimmed_key.ends_with('\"') {
-                        trimmed_key.to_string()
-                    } else {
-                        format!("\"{trimmed_key}\"")
-                    };
-
-                    let trimmed_value = value.trim_matches([' ', '\n', '\t', ',']);
-
-                    let value_context = JsonContext::Value;
-
-                    let new_value = parse_json_string(trimmed_value, value_context);
-
-                    let new_kv_pair = format!("{new_key}: {new_value}, ");
-
-                    Some(new_kv_pair)
-                })
-                .collect::<String>();
-            key_value_pairs.pop();
-            key_value_pairs.pop();
-
-            key_value_pairs
+            let handled_object_content = handle_object_content(string);
+            handled_object_content
         }
         _ => {
             let formatted_value = format_value(string);
-
             formatted_value
         }
     };
 
     new_string
+}
+
+pub(crate) fn handle_object_w_wrapper(string: &str) -> String {
+    let mut content_string = string[1..].to_string();
+    content_string.pop();
+    let content_string = content_string.trim_matches([' ', '\n', '\t', ',']);
+
+    let object_context = JsonContext::Object;
+
+    let new_object_substance = parse_json_string(content_string, object_context);
+
+    let new_with_braces = format!("{{{new_object_substance}}}");
+
+    new_with_braces
+}
+
+pub(crate) fn handle_array_content(string: &str) -> String {
+    let mut array_elements = split_array_elements(string)
+        .iter()
+        .map(|element| {
+            let value_context = JsonContext::Value;
+
+            let new_element = parse_json_string(element, value_context);
+            let formatted_element = format!("{new_element}, ");
+            formatted_element
+        })
+        .collect::<String>();
+    array_elements.pop();
+    array_elements.pop();
+
+    array_elements
+}
+
+pub(crate) fn handle_array_w_wrapper(string: &str) -> String {
+    let mut content_str = string[1..].to_string();
+    content_str.pop();
+    let content_str = content_str.trim();
+
+    let mut array_str = split_array_elements(content_str)
+        .iter()
+        .map(|element| {
+            let value_context = JsonContext::Value;
+
+            let new_element = parse_json_string(element, value_context);
+            let formatted_element = format!("{new_element}, ");
+            formatted_element
+        })
+        .collect::<String>();
+    array_str.pop();
+    array_str.pop();
+
+    let add_the_brackets_back = format!("[{array_str}]");
+
+    add_the_brackets_back
+}
+
+pub(crate) fn handle_object_content(string: &str) -> String {
+    let mut key_value_pairs = split_object_elements(string)
+        .iter()
+        .filter_map(|kv_pair| {
+            let (key, value) = kv_pair.split_once(':')?;
+
+            let trimmed_key = key.trim();
+
+            let new_key = if trimmed_key.starts_with('\"') && trimmed_key.ends_with('\"') {
+                trimmed_key.to_string()
+            } else {
+                format!("\"{trimmed_key}\"")
+            };
+
+            let trimmed_value = value.trim_matches([' ', '\n', '\t', ',']);
+
+            let value_context = JsonContext::Value;
+
+            let new_value = parse_json_string(trimmed_value, value_context);
+
+            let new_kv_pair = format!("{new_key}: {new_value}, ");
+
+            Some(new_kv_pair)
+        })
+        .collect::<String>();
+    key_value_pairs.pop();
+    key_value_pairs.pop();
+
+    key_value_pairs
 }
 
 pub(crate) fn format_value(value_str: &str) -> String {
