@@ -2,17 +2,17 @@ use crate::json_parse_approach::{parse_json_string, JsonContext};
 
 pub fn prepare_json_string(original_str: &str) -> String {
     let trimmed_str = original_str.trim_matches([' ', '\n', '\t', ',', ';', ':']);
+    let json_context = json_context(trimmed_str);
+    let content_str = content_str(json_context.clone(), trimmed_str);
 
-    let json_context = match trimmed_str {
-        trimmed_str if trimmed_str.starts_with('{') && trimmed_str.ends_with('}') => {
-            JsonContext::Object
-        }
-        trimmed_str if trimmed_str.starts_with('[') && trimmed_str.ends_with(']') => {
-            JsonContext::Array
-        }
-        _ => JsonContext::Value,
-    };
+    let parsed_json_string = parse_json_string(&content_str, json_context.clone());
 
+    let rewrapped_string = rewrap_string(&parsed_json_string, trimmed_str, json_context);
+    rewrapped_string
+}
+
+#[allow(clippy::needless_pass_by_value)]
+pub(crate) fn content_str(json_context: JsonContext, trimmed_str: &str) -> String {
     let content_str = match json_context {
         JsonContext::Array | JsonContext::Object => {
             let mut content_str = trimmed_str[1..].to_string();
@@ -27,8 +27,29 @@ pub fn prepare_json_string(original_str: &str) -> String {
         JsonContext::Value => trimmed_str.to_string(),
     };
 
-    let parsed_json_string = parse_json_string(&content_str, json_context.clone());
+    content_str
+}
 
+pub(crate) fn json_context(trimmed_str: &str) -> JsonContext {
+    let json_context = match trimmed_str {
+        trimmed_str if trimmed_str.starts_with('{') && trimmed_str.ends_with('}') => {
+            JsonContext::Object
+        }
+        trimmed_str if trimmed_str.starts_with('[') && trimmed_str.ends_with(']') => {
+            JsonContext::Array
+        }
+        _ => JsonContext::Value,
+    };
+
+    json_context
+}
+
+#[allow(clippy::needless_pass_by_value)]
+pub(crate) fn rewrap_string(
+    parsed_json_string: &str,
+    trimmed_str: &str,
+    json_context: JsonContext,
+) -> String {
     let rewrapped_string = match json_context {
         JsonContext::Array => {
             let rewrapped_string = format!("[{parsed_json_string}]");
