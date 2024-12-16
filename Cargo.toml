@@ -12,6 +12,7 @@ license = "MIT OR Apache-2.0"
 rust-version = "1.82.0"
 
 [dependencies]
+anyhow = "1.0.94"
 indexmap = { version = "2.6.0", features = ["serde"] }
 itertools = "0.13.0"
 num = "0.4.3"
