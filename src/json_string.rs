@@ -5,6 +5,7 @@ pub fn prepare_json_string(original_str: &str) -> String {
     let json_context = json_context(trimmed_str);
     let content_str = content_str(json_context.clone(), trimmed_str);
 
+    dbg!(&content_str);
     let parsed_json_string = parse_json_string(&content_str, json_context.clone());
 
     let rewrapped_string = rewrap_string(&parsed_json_string, trimmed_str, json_context);
@@ -70,6 +71,21 @@ pub(crate) fn rewrap_string(
 #[cfg(test)]
 mod tests {
     use crate::prepare_json_string;
+
+    #[test]
+    fn array_with_multiple_objects_and_semicolon_separator() {
+        let original_str = r#"[
+            {"Foo1":"BAR1", "Foo2":"BAR2", "Foo3":"BAR3"};
+            {"Foo4":"BAR4", "Foo5":"BAR5", "Foo6":"BAR6"};
+            {"Foo7":"BAR7", "Foo8":"BAR8", "Foo9":"BAR9"}
+        ]"#;
+
+        let prepared_str = prepare_json_string(original_str);
+
+        let expected_str = r#"[{"Foo1": "BAR1", "Foo2": "BAR2", "Foo3": "BAR3"}, {"Foo4": "BAR4", "Foo5": "BAR5", "Foo6": "BAR6"}, {"Foo7": "BAR7", "Foo8": "BAR8", "Foo9": "BAR9"}]"#;
+
+        assert_eq!(prepared_str, expected_str);
+    }
 
     #[test]
     fn array_with_multiple_objects() {
