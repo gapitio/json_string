@@ -8,6 +8,44 @@ pub(crate) enum JsonContext {
 }
 
 #[allow(clippy::needless_pass_by_value)]
+pub(crate) fn parse_stringified_json_string(string: &str, json_context: JsonContext) -> String {
+    let new_string = match string {
+        string
+            if string.starts_with('{')
+                && string.ends_with('}')
+                && json_context == JsonContext::Value =>
+        {
+            let handled_object_w_wrapper = handle_stringified_object_w_wrapper(string);
+            dbg!(&handled_object_w_wrapper);
+            handled_object_w_wrapper
+        }
+        string if json_context == JsonContext::Array => {
+            let handled_array_content = handle_stringified_array_content(string);
+            dbg!(&handled_array_content);
+            handled_array_content
+        }
+        string if string.starts_with('[') && string.ends_with(']') => {
+            let handled_array_w_wrapper = handle_stringified_array_w_wrapper(string);
+            dbg!(&handled_array_w_wrapper);
+            handled_array_w_wrapper
+        }
+        string if json_context == JsonContext::Object => {
+            let handled_object_content = handle_stringified_object_content(string);
+            dbg!(&handled_object_content);
+            handled_object_content
+        }
+        _ => {
+            let formatted_value = format_stringified_value(string);
+            dbg!(&formatted_value);
+
+            formatted_value
+        }
+    };
+
+    new_string
+}
+
+#[allow(clippy::needless_pass_by_value)]
 pub(crate) fn parse_json_string(string: &str, json_context: JsonContext) -> String {
     let new_string = match string {
         string
@@ -53,12 +91,45 @@ pub(crate) fn handle_object_w_wrapper(string: &str) -> String {
     new_with_braces
 }
 
+pub(crate) fn handle_stringified_object_w_wrapper(string: &str) -> String {
+    let mut content_string = string[1..].to_string();
+    content_string.pop();
+    let content_string = content_string.trim_matches([' ', '\n', '\t', ',']);
+
+    let object_context = JsonContext::Object;
+
+    let new_object_substance = parse_stringified_json_string(content_string, object_context);
+
+    let new_with_braces = format!("{{{new_object_substance}}}");
+
+    new_with_braces
+}
+
+pub(crate) fn handle_stringified_array_content(string: &str) -> String {
+    let mut array_elements = split_array_elements(string)
+        .iter()
+        .map(|element| {
+            let value_context = JsonContext::Value;
+
+            dbg!(&element);
+            let new_element = parse_stringified_json_string(element, value_context);
+            let formatted_element = format!("{new_element}, ");
+            formatted_element
+        })
+        .collect::<String>();
+    array_elements.pop();
+    array_elements.pop();
+
+    array_elements
+}
+
 pub(crate) fn handle_array_content(string: &str) -> String {
     let mut array_elements = split_array_elements(string)
         .iter()
         .map(|element| {
             let value_context = JsonContext::Value;
 
+            dbg!(&element);
             let new_element = parse_json_string(element, value_context);
             let formatted_element = format!("{new_element}, ");
             formatted_element
@@ -68,6 +139,29 @@ pub(crate) fn handle_array_content(string: &str) -> String {
     array_elements.pop();
 
     array_elements
+}
+
+pub(crate) fn handle_stringified_array_w_wrapper(string: &str) -> String {
+    let mut content_str = string[1..].to_string();
+    content_str.pop();
+    let content_str = content_str.trim();
+
+    let mut array_str = split_array_elements(content_str)
+        .iter()
+        .map(|element| {
+            let value_context = JsonContext::Value;
+
+            let new_element = parse_stringified_json_string(element, value_context);
+            let formatted_element = format!("{new_element}, ");
+            formatted_element
+        })
+        .collect::<String>();
+    array_str.pop();
+    array_str.pop();
+
+    let add_the_brackets_back = format!("[{array_str}]");
+
+    add_the_brackets_back
 }
 
 pub(crate) fn handle_array_w_wrapper(string: &str) -> String {
@@ -91,6 +185,37 @@ pub(crate) fn handle_array_w_wrapper(string: &str) -> String {
     let add_the_brackets_back = format!("[{array_str}]");
 
     add_the_brackets_back
+}
+
+pub(crate) fn handle_stringified_object_content(string: &str) -> String {
+    let mut key_value_pairs = split_object_elements(string)
+        .iter()
+        .filter_map(|kv_pair| {
+            let (key, value) = kv_pair.split_once(':')?;
+
+            let trimmed_key = key.trim();
+
+            let new_key = if trimmed_key.starts_with('\"') && trimmed_key.ends_with('\"') {
+                trimmed_key.to_string()
+            } else {
+                format!("\"{trimmed_key}\"")
+            };
+
+            let trimmed_value = value.trim_matches([' ', '\n', '\t', ',']);
+
+            let value_context = JsonContext::Value;
+
+            let new_value = parse_stringified_json_string(trimmed_value, value_context);
+
+            let new_kv_pair = format!("{new_key}: {new_value}, ");
+
+            Some(new_kv_pair)
+        })
+        .collect::<String>();
+    key_value_pairs.pop();
+    key_value_pairs.pop();
+
+    key_value_pairs
 }
 
 pub(crate) fn handle_object_content(string: &str) -> String {
@@ -122,6 +247,18 @@ pub(crate) fn handle_object_content(string: &str) -> String {
     key_value_pairs.pop();
 
     key_value_pairs
+}
+
+pub(crate) fn format_stringified_value(value_str: &str) -> String {
+    if value_str.is_empty() {
+        return String::default();
+    }
+
+    dbg!(&value_str);
+    let without_quotes = value_str.trim_matches('\"');
+    let formatted_value = format!("\"{without_quotes}\"");
+
+    formatted_value
 }
 
 pub(crate) fn format_value(value_str: &str) -> String {
