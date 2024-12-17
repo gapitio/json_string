@@ -19,6 +19,18 @@ mod tests {
     use crate::prepare_stringified_json_string;
 
     #[test]
+    fn comma_inside_value() {
+        let original_str = r#"{"Description": "Battery pack interfaces 1, NB011-NB012 (UPS 1)", }"#;
+
+        let prepared_str = prepare_stringified_json_string(original_str);
+
+        let expected_str =
+            r#"{"Description": "Battery pack interfaces 1, NB011-NB012 (UPS 1)"}"#.to_string();
+
+        assert_eq!(prepared_str, expected_str);
+    }
+
+    #[test]
     fn array_with_multiple_objects_stringified() {
         let original_str = r#"[
             {"Foo1":19, "Foo2":"BAR2", "Foo3":"BAR3"},

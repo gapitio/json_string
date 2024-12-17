@@ -1,6 +1,6 @@
 [package]
 name = "json_string"
-version = "0.1.8"
+version = "0.1.9"
 edition = "2021"
 description = "Format JSON string so that `serde_json` can understand it."
 keywords = ["serde", "string", "json"]
