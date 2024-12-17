@@ -5,9 +5,6 @@ use crate::helpers::{
 
 #[allow(clippy::needless_pass_by_value)]
 pub(crate) fn parse_stringified_json_string(string: &str, json_context: JsonContext) -> String {
-    dbg!(&string);
-    dbg!(&json_context);
-    dbg!();
     let new_string = match string {
         string
             if string.starts_with('{')
@@ -16,31 +13,25 @@ pub(crate) fn parse_stringified_json_string(string: &str, json_context: JsonCont
         {
             let handled_object_w_wrapper = handle_stringified_object_w_wrapper(string);
 
-            dbg!(&handled_object_w_wrapper);
-
             handled_object_w_wrapper
         }
         string if json_context == JsonContext::Array => {
             let handled_array_content = handle_stringified_array_content(string);
-            dbg!(&handled_array_content);
 
             handled_array_content
         }
         string if string.starts_with('[') && string.ends_with(']') => {
             let handled_array_w_wrapper = handle_stringified_array_w_wrapper(string);
-            dbg!(&handled_array_w_wrapper);
 
             handled_array_w_wrapper
         }
         string if json_context == JsonContext::Object => {
             let handled_object_content = handle_stringified_object_content(string);
-            dbg!(&handled_object_content);
 
             handled_object_content
         }
         _ => {
             let formatted_value = format_stringified_value(string);
-            dbg!(&formatted_value);
 
             formatted_value
         }

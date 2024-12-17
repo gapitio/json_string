@@ -80,7 +80,6 @@ pub(crate) fn handle_object_w_wrapper(string: &str) -> String {
 
     let object_context = JsonContext::Object;
 
-    dbg!(&content_string);
     let new_object_substance = parse_json_string(content_string, object_context);
 
     let new_with_braces = format!("{{{new_object_substance}}}");
@@ -95,7 +94,6 @@ pub(crate) fn handle_stringified_object_w_wrapper(string: &str) -> String {
 
     let object_context = JsonContext::Object;
 
-    dbg!(&content_string);
     let new_object_substance = parse_stringified_json_string(content_string, object_context);
 
     let new_with_braces = format!("{{{new_object_substance}}}");
@@ -109,7 +107,6 @@ pub(crate) fn handle_stringified_array_content(string: &str) -> String {
         .map(|element| {
             let value_context = JsonContext::Value;
 
-            dbg!(&element);
             let new_element = parse_stringified_json_string(element, value_context);
             let formatted_element = format!("{new_element}, ");
             formatted_element
@@ -127,7 +124,6 @@ pub(crate) fn handle_array_content(string: &str) -> String {
         .map(|element| {
             let value_context = JsonContext::Value;
 
-            dbg!(&element);
             let new_element = parse_json_string(element, value_context);
             let formatted_element = format!("{new_element}, ");
             formatted_element
@@ -149,7 +145,6 @@ pub(crate) fn handle_stringified_array_w_wrapper(string: &str) -> String {
         .map(|element| {
             let value_context = JsonContext::Value;
 
-            dbg!(&element);
             let new_element = parse_stringified_json_string(element, value_context);
             let formatted_element = format!("{new_element}, ");
             formatted_element
@@ -173,7 +168,6 @@ pub(crate) fn handle_array_w_wrapper(string: &str) -> String {
         .map(|element| {
             let value_context = JsonContext::Value;
 
-            dbg!(&element);
             let new_element = parse_json_string(element, value_context);
             let formatted_element = format!("{new_element}, ");
             formatted_element
@@ -205,7 +199,6 @@ pub(crate) fn handle_stringified_object_content(string: &str) -> String {
 
             let value_context = JsonContext::Value;
 
-            dbg!(&trimmed_value);
             let new_value = parse_stringified_json_string(trimmed_value, value_context);
 
             let new_kv_pair = format!("{new_key}: {new_value}, ");
@@ -223,7 +216,6 @@ pub(crate) fn handle_object_content(string: &str) -> String {
     let mut key_value_pairs = split_object_elements(string)
         .iter()
         .filter_map(|kv_pair| {
-            dbg!(&kv_pair);
             let (key, value) = kv_pair.split_once(':')?;
 
             let trimmed_key = key.trim();
@@ -238,11 +230,7 @@ pub(crate) fn handle_object_content(string: &str) -> String {
 
             let value_context = JsonContext::Value;
 
-            dbg!(&trimmed_value);
             let new_value = parse_json_string(trimmed_value, value_context);
-
-            dbg!(&new_key);
-            dbg!(&new_value);
 
             let new_kv_pair = format!("{new_key}: {new_value}, ");
 
