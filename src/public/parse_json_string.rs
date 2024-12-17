@@ -45,10 +45,20 @@ mod tests {
     use crate::{helpers::JsonContext, public::parse_json_string::parse_json_string};
 
     #[test]
-    fn array_w_multiple_objects_and_semicolon_separator_stringified() {}
+    fn comma_inside_value() {
+        let original_str = r#"{"Description": "Battery pack interfaces 1, NB011-NB012 (UPS 1)", }"#;
+
+        let value_context = JsonContext::Value;
+        let prepared_str = parse_json_string(original_str, value_context);
+
+        let expected_str =
+            r#"{"Description": "Battery pack interfaces 1, NB011-NB012 (UPS 1)"}"#.to_string();
+
+        assert_eq!(prepared_str, expected_str);
+    }
 
     #[test]
-    fn array_w_multiple_objects_stringified() {
+    fn array_w_multiple_objects_stringified1() {
         let original_str = r#"[
             {"Foo1":"BAR1", "Foo2":"BAR2", "Foo3":"BAR3"};
             {"Foo4":"BAR4", "Foo5":"BAR5", "Foo6":"BAR6"};
