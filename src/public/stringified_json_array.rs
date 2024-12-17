@@ -1,6 +1,6 @@
 use crate::{
-    json_array::ensure_array_wrapper,
-    json_parse_approach::{parse_stringified_json_string, JsonContext},
+    helpers::{content_str, ensure_array_wrapper, json_context, rewrap_string},
+    public::parse_stringified_json_string::parse_stringified_json_string,
 };
 
 pub fn prepare_stringified_json_array(original_str: &str) -> String {
@@ -15,61 +15,9 @@ pub fn prepare_stringified_json_array(original_str: &str) -> String {
     rewrapped_string
 }
 
-#[allow(clippy::needless_pass_by_value)]
-pub(crate) fn content_str(json_context: JsonContext, trimmed_str: &str) -> String {
-    let content_str = match json_context {
-        JsonContext::Array | JsonContext::Object => {
-            let mut content_str = trimmed_str[1..].to_string();
-            content_str.pop();
-
-            let trimmed_content_str = content_str
-                .trim_matches([' ', '\n', '\t', ',', ';', ':'])
-                .to_string();
-
-            trimmed_content_str
-        }
-        JsonContext::Value => trimmed_str.to_string(),
-    };
-
-    content_str
-}
-
-pub(crate) fn json_context(trimmed_str: &str) -> JsonContext {
-    let json_context = match trimmed_str {
-        trimmed_str if trimmed_str.starts_with('{') && trimmed_str.ends_with('}') => {
-            JsonContext::Object
-        }
-        trimmed_str if trimmed_str.starts_with('[') && trimmed_str.ends_with(']') => {
-            JsonContext::Array
-        }
-        _ => JsonContext::Value,
-    };
-
-    json_context
-}
-
-#[allow(clippy::needless_pass_by_value)]
-pub(crate) fn rewrap_string(parsed_json_string: &str, json_context: JsonContext) -> String {
-    let rewrapped_string = match json_context {
-        JsonContext::Array => {
-            let rewrapped_string = format!("[{parsed_json_string}]");
-
-            rewrapped_string
-        }
-        JsonContext::Object => {
-            let rewrapped_string = format!("{{{parsed_json_string}}}");
-
-            rewrapped_string
-        }
-        JsonContext::Value => parsed_json_string.to_string(),
-    };
-
-    rewrapped_string
-}
-
 #[cfg(test)]
 mod tests {
-    use crate::stringified_json_array::prepare_stringified_json_array;
+    use crate::public::stringified_json_array::prepare_stringified_json_array;
 
     #[test]
     fn array_with_multiple_objects_stringified_to_array() {
