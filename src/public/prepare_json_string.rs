@@ -12,17 +12,13 @@ pub fn prepare_json_string(original_str: &str) -> String {
 
     let json_context = json_context(trimmed_str);
 
-    dbg!(&json_context);
-
     let content_str = content_str(json_context.clone(), trimmed_str);
-    dbg!(&content_str);
+
     let content_str = content_str
         .trim_matches([' ', '\n', '\t', ',', ';', ':'])
         .trim_start_matches("\\\\n")
         .trim_end_matches("\\\\n")
         .to_string();
-
-    dbg!(&content_str);
 
     let parsed_json_string = parse_json_string(&content_str, json_context.clone());
 
