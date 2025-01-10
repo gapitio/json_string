@@ -3,7 +3,10 @@ use crate::helpers::{content_str, ensure_array_wrapper, json_context, rewrap_str
 use super::parse_json_string::parse_json_string;
 
 pub fn prepare_json_array(original_str: &str) -> String {
-    let trimmed_str = original_str.trim_matches([' ', '\n', '\t', ',', ';', ':']);
+    let trimmed_str = original_str
+        .trim_matches([' ', '\n', '\t', ',', ';', ':'])
+        .trim_start_matches("\\n")
+        .trim_end_matches("\\n");
 
     let array_input = ensure_array_wrapper(trimmed_str);
 

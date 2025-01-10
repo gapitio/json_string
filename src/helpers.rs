@@ -37,6 +37,8 @@ pub(crate) fn content_str(json_context: JsonContext, trimmed_str: &str) -> Strin
 
             let trimmed_content_str = content_str
                 .trim_matches([' ', '\n', '\t', ',', ';', ':'])
+                .trim_start_matches("\\n")
+                .trim_end_matches("\\n")
                 .to_string();
 
             trimmed_content_str
@@ -76,7 +78,10 @@ pub(crate) enum JsonContext {
 pub(crate) fn handle_object_w_wrapper(string: &str) -> String {
     let mut content_string = string[1..].to_string();
     content_string.pop();
-    let content_string = content_string.trim_matches([' ', '\n', '\t', ',']);
+    let content_string = content_string
+        .trim_matches([' ', '\n', '\t', ','])
+        .trim_start_matches("\\n")
+        .trim_end_matches("\\n");
 
     let object_context = JsonContext::Object;
 
@@ -90,7 +95,10 @@ pub(crate) fn handle_object_w_wrapper(string: &str) -> String {
 pub(crate) fn handle_stringified_object_w_wrapper(string: &str) -> String {
     let mut content_string = string[1..].to_string();
     content_string.pop();
-    let content_string = content_string.trim_matches([' ', '\n', '\t', ',']);
+    let content_string = content_string
+        .trim_matches([' ', '\n', '\t', ','])
+        .trim_start_matches("\\n")
+        .trim_end_matches("\\n");
 
     let object_context = JsonContext::Object;
 
@@ -195,7 +203,10 @@ pub(crate) fn handle_stringified_object_content(string: &str) -> String {
                 format!("\"{trimmed_key}\"")
             };
 
-            let trimmed_value = value.trim_matches([' ', '\n', '\t', ',']);
+            let trimmed_value = value
+                .trim_matches([' ', '\n', '\t', ','])
+                .trim_start_matches("\\n")
+                .trim_end_matches("\\n");
 
             let value_context = JsonContext::Value;
 
@@ -226,7 +237,10 @@ pub(crate) fn handle_object_content(string: &str) -> String {
                 format!("\"{trimmed_key}\"")
             };
 
-            let trimmed_value = value.trim_matches([' ', '\n', '\t', ',']);
+            let trimmed_value = value
+                .trim_matches([' ', '\n', '\t', ','])
+                .trim_start_matches("\\n")
+                .trim_end_matches("\\n");
 
             let value_context = JsonContext::Value;
 
@@ -255,6 +269,8 @@ pub(crate) fn split_array_elements(string: &str) -> Vec<String> {
         if is_separator && array_lefts.is_zero() && object_lefts.is_zero() {
             let trimmed_current_element = current_element
                 .trim_matches([' ', '\n', '\t', ',', ';'])
+                .trim_start_matches("\\n")
+                .trim_end_matches("\\n")
                 .to_string();
             all_elements.push(trimmed_current_element.clone());
             current_element.clear();
@@ -280,6 +296,8 @@ pub(crate) fn split_array_elements(string: &str) -> Vec<String> {
 
     let trimmed_current_element = current_element
         .trim_matches([' ', '\n', '\t', ',', ';'])
+        .trim_start_matches("\\n")
+        .trim_end_matches("\\n")
         .to_string();
     all_elements.push(trimmed_current_element.clone());
     current_element.clear();
@@ -303,6 +321,8 @@ pub(crate) fn split_object_elements(object_str: &str) -> Vec<String> {
         {
             let trimmed_element = current_element
                 .trim_matches([' ', '\n', '\t', ','])
+                .trim_start_matches("\\n")
+                .trim_end_matches("\\n")
                 .to_string();
             all_elements.push(trimmed_element);
             current_element.clear();
@@ -337,6 +357,8 @@ pub(crate) fn split_object_elements(object_str: &str) -> Vec<String> {
 
     let trimmed_element = current_element
         .trim_matches([' ', '\n', '\t', ','])
+        .trim_start_matches("\\n")
+        .trim_end_matches("\\n")
         .to_string();
     all_elements.push(trimmed_element);
     current_element.clear();
@@ -349,7 +371,10 @@ pub(crate) fn format_stringified_value(value_str: &str) -> String {
         return String::default();
     }
 
-    let without_quotes = value_str.trim_matches('\"');
+    let without_quotes = value_str
+        .trim_matches('\"')
+        .trim_start_matches("\\n")
+        .trim_end_matches("\\n");
     let formatted_value = format!("\"{without_quotes}\"");
 
     formatted_value
@@ -370,7 +395,11 @@ pub(crate) fn format_value(value_str: &str) -> String {
         }
         "none" => "None".to_string(),
         _ => {
-            let without_quotes = value_str.trim_matches('\"');
+            let without_quotes = value_str
+                .trim_matches('\"')
+                .trim_start_matches("\\n")
+                .trim_end_matches("\\n");
+
             let with_quotes = format!("\"{without_quotes}\"");
             with_quotes
         }

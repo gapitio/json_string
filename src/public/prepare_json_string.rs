@@ -3,19 +3,42 @@ use crate::helpers::{content_str, json_context, rewrap_string};
 use super::parse_json_string::parse_json_string;
 
 pub fn prepare_json_string(original_str: &str) -> String {
-    let trimmed_str = original_str.trim_matches([' ', '\n', '\t', ',', ';', ':']);
+    let trimmed_str = original_str
+        .trim_matches([' ', '\n', '\t', ',', ';', ':'])
+        .trim_start_matches("\\n")
+        .trim_end_matches("\\n");
+
     let json_context = json_context(trimmed_str);
-    let content_str = content_str(json_context.clone(), trimmed_str);
+
+    let content_str = content_str(json_context.clone(), trimmed_str)
+        .trim_matches([' ', '\n', '\t', ',', ';', ':'])
+        .trim_start_matches("\\n")
+        .trim_end_matches("\\n")
+        .to_string();
 
     let parsed_json_string = parse_json_string(&content_str, json_context.clone());
 
     let rewrapped_string = rewrap_string(&parsed_json_string, json_context);
+
     rewrapped_string
 }
 
 #[cfg(test)]
 mod tests {
     use crate::prepare_json_string;
+
+    #[test]
+    fn newline_chars() {
+        let original_str =
+            r#"{\n\n"Description": \n"Battery pack interfaces 1, NB011-NB012 (UPS 1)", \n}"#;
+
+        let prepared_str = prepare_json_string(original_str);
+
+        let expected_str =
+            r#"{"Description": "Battery pack interfaces 1, NB011-NB012 (UPS 1)"}"#.to_string();
+
+        assert_eq!(prepared_str, expected_str);
+    }
 
     #[test]
     fn comma_inside_value() {

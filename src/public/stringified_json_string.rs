@@ -4,7 +4,10 @@ use crate::{
 };
 
 pub fn prepare_stringified_json_string(original_str: &str) -> String {
-    let trimmed_str = original_str.trim_matches([' ', '\n', '\t', ',', ';', ':']);
+    let trimmed_str = original_str
+        .trim_matches([' ', '\n', '\t', ',', ';', ':'])
+        .trim_start_matches("\\n")
+        .trim_end_matches("\\n");
     let json_context = json_context(trimmed_str);
     let content_str = content_str(json_context.clone(), trimmed_str);
 
