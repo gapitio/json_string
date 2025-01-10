@@ -39,6 +39,8 @@ pub(crate) fn content_str(json_context: JsonContext, trimmed_str: &str) -> Strin
                 .trim_matches([' ', '\n', '\t', ',', ';', ':'])
                 .trim_start_matches("\\n")
                 .trim_end_matches("\\n")
+                .trim_start_matches("\\\\n")
+                .trim_end_matches("\\\\n")
                 .to_string();
 
             trimmed_content_str
@@ -80,6 +82,8 @@ pub(crate) fn handle_object_w_wrapper(string: &str) -> String {
     content_string.pop();
     let content_string = content_string
         .trim_matches([' ', '\n', '\t', ','])
+        .trim_start_matches("\\\\n")
+        .trim_end_matches("\\\\n")
         .trim_start_matches("\\n")
         .trim_end_matches("\\n");
 
@@ -97,6 +101,8 @@ pub(crate) fn handle_stringified_object_w_wrapper(string: &str) -> String {
     content_string.pop();
     let content_string = content_string
         .trim_matches([' ', '\n', '\t', ','])
+        .trim_start_matches("\\\\n")
+        .trim_end_matches("\\\\n")
         .trim_start_matches("\\n")
         .trim_end_matches("\\n");
 
@@ -205,6 +211,8 @@ pub(crate) fn handle_stringified_object_content(string: &str) -> String {
 
             let trimmed_value = value
                 .trim_matches([' ', '\n', '\t', ','])
+                .trim_start_matches("\\\\n")
+                .trim_end_matches("\\\\n")
                 .trim_start_matches("\\n")
                 .trim_end_matches("\\n");
 
@@ -239,6 +247,8 @@ pub(crate) fn handle_object_content(string: &str) -> String {
 
             let trimmed_value = value
                 .trim_matches([' ', '\n', '\t', ','])
+                .trim_start_matches("\\\\n")
+                .trim_end_matches("\\\\n")
                 .trim_start_matches("\\n")
                 .trim_end_matches("\\n");
 
@@ -269,6 +279,8 @@ pub(crate) fn split_array_elements(string: &str) -> Vec<String> {
         if is_separator && array_lefts.is_zero() && object_lefts.is_zero() {
             let trimmed_current_element = current_element
                 .trim_matches([' ', '\n', '\t', ',', ';'])
+                .trim_start_matches("\\\\n")
+                .trim_end_matches("\\\\n")
                 .trim_start_matches("\\n")
                 .trim_end_matches("\\n")
                 .to_string();
@@ -296,6 +308,8 @@ pub(crate) fn split_array_elements(string: &str) -> Vec<String> {
 
     let trimmed_current_element = current_element
         .trim_matches([' ', '\n', '\t', ',', ';'])
+        .trim_start_matches("\\\\n")
+        .trim_end_matches("\\\\n")
         .trim_start_matches("\\n")
         .trim_end_matches("\\n")
         .to_string();
@@ -321,6 +335,8 @@ pub(crate) fn split_object_elements(object_str: &str) -> Vec<String> {
         {
             let trimmed_element = current_element
                 .trim_matches([' ', '\n', '\t', ','])
+                .trim_start_matches("\\\\n")
+                .trim_end_matches("\\\\n")
                 .trim_start_matches("\\n")
                 .trim_end_matches("\\n")
                 .to_string();
@@ -357,6 +373,8 @@ pub(crate) fn split_object_elements(object_str: &str) -> Vec<String> {
 
     let trimmed_element = current_element
         .trim_matches([' ', '\n', '\t', ','])
+        .trim_start_matches("\\\\n")
+        .trim_end_matches("\\\\n")
         .trim_start_matches("\\n")
         .trim_end_matches("\\n")
         .to_string();
@@ -373,6 +391,8 @@ pub(crate) fn format_stringified_value(value_str: &str) -> String {
 
     let without_quotes = value_str
         .trim_matches('\"')
+        .trim_start_matches("\\\\n")
+        .trim_end_matches("\\\\n")
         .trim_start_matches("\\n")
         .trim_end_matches("\\n");
     let formatted_value = format!("\"{without_quotes}\"");
@@ -397,6 +417,8 @@ pub(crate) fn format_value(value_str: &str) -> String {
         _ => {
             let without_quotes = value_str
                 .trim_matches('\"')
+                .trim_start_matches("\\\\n")
+                .trim_end_matches("\\\\n")
                 .trim_start_matches("\\n")
                 .trim_end_matches("\\n");
 

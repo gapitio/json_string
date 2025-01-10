@@ -5,6 +5,8 @@ use super::parse_json_string::parse_json_string;
 pub fn prepare_json_array(original_str: &str) -> String {
     let trimmed_str = original_str
         .trim_matches([' ', '\n', '\t', ',', ';', ':'])
+        .trim_start_matches("\\\\n")
+        .trim_end_matches("\\\\n")
         .trim_start_matches("\\n")
         .trim_end_matches("\\n");
 
